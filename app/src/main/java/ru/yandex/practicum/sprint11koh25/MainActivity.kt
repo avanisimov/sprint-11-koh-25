@@ -1,5 +1,6 @@
 package ru.yandex.practicum.sprint11koh25
 
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -66,7 +67,9 @@ class MainActivity : AppCompatActivity() {
         serverApi.getNews1().enqueue(object : Callback<NewsResponse> {
             override fun onResponse(call: Call<NewsResponse>, response: Response<NewsResponse>) {
                 Log.i(TAG, "onResponse: ${response.body()}")
-                adapter.items = response.body()?.data?.items ?: emptyList()
+                val items = response.body()?.data?.items
+                    ?.filter { it !is NewsItem.Unknown }
+                adapter.items = items ?: emptyList()
             }
 
             override fun onFailure(call: Call<NewsResponse>, t: Throwable) {
@@ -75,7 +78,45 @@ class MainActivity : AppCompatActivity() {
 
         })
 
+
+        val sp = getSharedPreferences("SOME_NAME_2", Context.MODE_PRIVATE)
+        sp.edit().clear().commit()
+//        for (i in 10 until 30) {
+//            sp.edit()
+//                .putString("key" + i, "text" + i)
+//                .commit()
+//        }
+        sp.edit()
+            .putString("key", "text")
+            .commit()
+        sp.edit()
+            .putString("a", "b")
+            .commit()
     }
+
+
+//    Интересно, почему при записи в SharedPreferences в цикле последовательность не сохраняется? (см код и результат ниже).
+//
+//    for (i in 0 until 10) {
+//        sharedPrefs.edit()
+//            .putString("key" + i, "text" + i)
+//            .apply()
+//    }
+//
+//
+//    <?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+//    <map>
+//    <string name="key1">text1</string>
+//    <string name="key2">text2</string>
+//    <string name="key0">text0</string>
+//    <string name="key5">text5</string>
+//    <string name="key6">text6</string>
+//    <string name="key3">text3</string>
+//    <string name="key4">text4</string>
+//    <string name="key9">text9</string>
+//    <string name="key7">text7</string>
+//    <string name="key8">text8</string>
+//    </map>
 
 
 }
@@ -85,6 +126,6 @@ class MainActivity : AppCompatActivity() {
 interface Sprint11ServerApi {
 
 
-    @GET("main/jsons/news_1.json")
+    @GET("main/jsons/news_2.json")
     fun getNews1(): Call<NewsResponse>
 }

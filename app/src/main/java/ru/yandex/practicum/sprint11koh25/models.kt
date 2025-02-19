@@ -42,6 +42,21 @@ sealed class NewsItem {
         override val created: Date,
         val specific_property_for_science: String,
     ) : NewsItem()
+
+    data class Social(
+        override val id: String,
+        override val title: String,
+        override val type: String,
+        override val created: Date,
+        val content: String,
+    ) : NewsItem()
+
+    data class Unknown(
+        override val id: String,
+        override val title: String,
+        override val type: String,
+        override val created: Date,
+    ) : NewsItem()
 }
 
 
@@ -73,7 +88,8 @@ class NewsItemTypeAdapter : JsonDeserializer<NewsItem> {
         return when (type) {
             "sport" -> context.deserialize(json, NewsItem.Sport::class.java)
             "science" -> context.deserialize(json, NewsItem.Science::class.java)
-            else -> throw IllegalStateException("there is no candidate for $type")
+            "social" -> context.deserialize(json, NewsItem.Social::class.java)
+            else -> context.deserialize(json, NewsItem.Unknown::class.java)
         }
     }
 
